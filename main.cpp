@@ -2,27 +2,30 @@
 #define TABLE_SIZE 997
 using namespace std;
 
-template <typename V>
+template <typename KeyType, typename ValueType>
 struct hash_table
 {
 private:
     struct hash_node
     {
-        string key;
-        V value;
+        KeyType key;
+        ValueType value;
         hash_node* next;
 
-        hash_node(string key, V value): key(key), value(value)
+        hash_node(KeyType key, ValueType value): key(key), value(value)
         {
             next = nullptr;
         }
     };
+    std::hash<KeyType> key_hash;
     hash_node* m_table[TABLE_SIZE];
-    int get_hash(string key)
+    int get_hash(KeyType key)
     {
         int value = 0;
-        for (auto c : key)
-            value = (value + c) % TABLE_SIZE;
+
+        value = key_hash(key) % TABLE_SIZE;
+        //for (auto c : key)
+        //    value = (value + c) % TABLE_SIZE;
         return value;
     }
 public:
@@ -31,7 +34,23 @@ public:
         for (int i = 0; i < TABLE_SIZE; i++)
             m_table[i] = nullptr;
     }
-    void put(string key, V value)
+    ~hash_table()
+    {
+        auto delete_list = [](hash_node* node) {
+            auto p = node;
+
+            while (p != nullptr)
+            {
+                auto next = p->next;
+                delete p;
+                p = next;
+            }
+        };
+
+        for (int i = 0; i < TABLE_SIZE; i++)
+            delete_list(m_table[i]);
+    }
+    void put(KeyType key, ValueType value)
     {
         int hash_code = get_hash(key);
         if (m_table[hash_code] == nullptr) {
@@ -52,7 +71,7 @@ public:
         }
     }
 
-    V get(string key)
+    ValueType get(KeyType key)
     {
         int hash_code = get_hash(key);
         if (m_table[hash_code] == nullptr)
@@ -90,7 +109,7 @@ public:
 
 int main()
 {
-    auto person = hash_table<string>();
+    auto person = hash_table<string, string>();
 
     person.put("name", "Alex Dumitru");
     person.put("age", "20");
@@ -100,5 +119,24 @@ int main()
 
     cout << "Max depth: " << person._max_depth() << "\n";
 
+    class Unhashable
+    {
+        int x;
+
+    public:
+        Unhashable(int x = 0): x(x)
+        {
+
+        }
+    };
+
+    auto x = Unhashable(1);
+    auto y = Unhashable(2);
+    //auto table = hash_table<Unhashable, string>();
+
+    //table.put(x, "x");
+    //table.put(y, "y");
+
+    //cout << table.get(x) << table.get(y) << "\n";
     return 0;
 }
