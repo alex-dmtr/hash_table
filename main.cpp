@@ -94,8 +94,9 @@ int main()
 
     person.put("name", "Alex Dumitru");
     person.put("age", "20");
+    person.put("education", "University of Manchester");
 
-    cout << person.get("name") << " " << person.get("age") << "\n";
+    cout << person.get("name") << " " << person.get("age") << " " << person.get("education") << "\n";
 
     cout << "Max depth: " << person._max_depth() << "\n";
 
